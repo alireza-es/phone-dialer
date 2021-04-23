@@ -1,7 +1,6 @@
 import { Button } from "./Button";
 
 export class PhoneKeypad {
-    currentButton: Button;
     buttons: Array<Button>;
     constructor() {
         this.buttons = [
@@ -17,7 +16,30 @@ export class PhoneKeypad {
             { value: 0, allowed_destinations: [4, 6] }
         ]
     }
-    generateNumbers(n: number) : Array<string> {
-        return [];
+    generateNumbers(max_len: number): Array<string> {
+        let result = new Array<string>();
+        
+        for (const button of this.buttons) {            
+            this.generateFollowingNumbers(result, '', max_len, button);
+        }
+        return result;
+    }
+    generateFollowingNumbers(result: Array<string>, generated_number: string, max_len: number, current_button: Button) {
+        generated_number = generated_number.concat(current_button.value.toString());
+        if (generated_number.length === max_len) {
+            result.push(generated_number);
+            return;
+        }
+        
+        for (const dest_button_value of current_button.allowed_destinations) {
+            const dest_button = this.getButton(dest_button_value);
+
+            this.generateFollowingNumbers(result, generated_number, max_len, dest_button)
+        }
+    }
+
+    private getButton(value: number):Button {
+        const buttons = this.buttons.filter(x => x.value == value);
+        return buttons.length > 0 ? buttons[0] : null;
     }
 }
